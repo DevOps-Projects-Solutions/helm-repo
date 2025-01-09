@@ -1,0 +1,53 @@
+# values.yaml
+appName: myapp
+
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-nginx
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-nginx
+    spec:
+      containers:
+        - name: {{ .Values.appName }}
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: APP_NAME_LENGTH
+              value: "{{ len .Values.appName | printf \"%d\" }}"
+
+
+
+# values.yaml
+appName: myapp
+env: production
+
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-{{ .Values.env }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}-{{ .Values.env }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}-{{ .Values.env }}
+    spec:
+      containers:
+      - name: {{ .Values.appName }}
+        image: "{{ .Values.appName }}/{{ .Values.env }}:latest"
+        ports:
+        - containerPort: 80

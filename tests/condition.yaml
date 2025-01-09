@@ -1,0 +1,44 @@
+#values.yaml
+name: my-app
+replicas: 2
+container:
+  name: my-app-container
+  image: my-app:latest
+  env: true
+#deploy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  template:
+    spec:
+      containers:
+        - name: {{ .Values.container.name }}
+          image: {{ .Values.container.image }}
+          {{- if .Values.container.env }}
+          env:
+            - name: ENV
+              value: "production"
+          {{- else }}
+          env:
+            - name: ENV
+              value: "development"
+          {{- end }}
+
+
+#values.yaml
+
+
+
+#deploy.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+data:
+  {{- with .Values.config }}
+  APP_NAME: {{ .appName }}
+  APP_VERSION: {{ .appVersion }}
+  {{- end }}
